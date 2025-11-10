@@ -1,6 +1,6 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
-import Hero from '../../components/ui/Hero';
+import PageHeader from '../../components/ui/PageHeader';
 import ProjectCard from '../../components/projects/ProjectCard';
 import ScrollReveal from '../../components/ui/ScrollReveal';
 import { projects } from '../../data/projects';
@@ -10,7 +10,7 @@ import { projects } from '../../data/projects';
   title="实战项目 - 陈天 AI 训练营"
   description="通过 5 个实战项目，从零到一掌握 AI 辅助编程"
 >
-  <Hero
+  <PageHeader
     title="实战项目"
     subtitle="从零到一，用 AI 构建真实项目"
     client:load
@@ -19,7 +19,7 @@ import { projects } from '../../data/projects';
       <a href="#projects" class="btn-primary"> 查看项目 </a>
       <a href="/curriculum" class="btn-secondary"> 返回课程 </a>
     </div>
-  </Hero>
+  </PageHeader>
 
   <section class="py-24 bg-bg-primary">
     <div class="container-custom">

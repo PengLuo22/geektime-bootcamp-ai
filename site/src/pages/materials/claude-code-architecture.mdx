@@ -1,0 +1,540 @@
+---
+layout: ../../layouts/MaterialLayout.astro
+title: Claude Code 2.0 深度架构分析
+description: 完整逆向工程分析 - 16个System Prompts，50+架构图
+category: 工具深度解析
+---
+
+import MetricCard from '../../components/materials/MetricCard';
+import Mermaid from '../../components/materials/Mermaid';
+import ScrollReveal from '../../components/ui/ScrollReveal';
+
+# Claude Code 2.0 深度架构分析
+
+**Anthropic 官方 CLI 工具完整逆向工程**
+
+> **分析版本**: v2.0.36 | **分析方法**: Acorn AST 深度解析 | **完成日期**: 2025-11-09
+
+---
+
+## 📊 项目成果概览
+
+export const projectMetrics = [
+  { label: '提取的 System Prompts', value: 16, color: '#0071e3', icon: '📝' },
+  { label: 'AST 节点分析', value: 2060248, unit: '', color: '#34c759', icon: '🔍' },
+  { label: 'Mermaid 架构图', value: 50, color: '#bf5af2', icon: '📊' },
+  { label: '变量映射表', value: 2035, color: '#ff9500', icon: '🔗' },
+  { label: '文档产出', value: 9, color: '#ff2d55', icon: '📚' },
+  { label: '提取准确率', value: 95, unit: '%', color: '#34c759', icon: '✅' }
+]
+
+<MetricCard title="分析成果" items={projectMetrics} type="number" client:load />
+
+---
+
+## 🎯 技术突破
+
+### 方法演进对比
+
+| 方法               | 提取数量 | 准确率  | 处理时间  | 状态        |
+| ------------------ | -------- | ------- | --------- | ----------- |
+| v1.0 正则表达式    | 3个      | 60%     | 30秒      | ❌ 淘汰     |
+| v2.0 增强正则      | 5个      | 70%     | 25秒      | ⚠️ 改进中 |
+| **v3.0 Acorn AST** | **16个** | **95%** | **0.6秒** | ✅ **最优** |
+
+**提升幅度**：
+- 📈 提取数量：**+433%** (3 → 16 个)
+- 📈 准确性：**+35%** (60% → 95%)
+- ⚡ 速度：**50x 更快** (30秒 → 0.6秒)
+
+---
+
+## 🏗️ Claude Code 整体架构
+
+<Mermaid chart={`flowchart TD
+    User["👤 用户 CLI"] --> CLI["Claude Code CLI"]
+    CLI --> Router["消息路由器"]
+
+    Router --> MainPrompt["主 System Prompt 3.7KB"]
+
+    MainPrompt --> CoreAgents["核心 Agents"]
+    MainPrompt --> MetaAgents["元 Agents"]
+    MainPrompt --> UtilityAgents["实用 Agents"]
+
+    CoreAgents --> GP["general-purpose<br/>1.4KB 通用任务"]
+    CoreAgents --> Explore["Explore<br/>931B 文件搜索"]
+    CoreAgents --> Plan["Plan<br/>任务规划"]
+
+    MetaAgents --> AA["Agent Architect<br/>5KB 创建 Agents"]
+    MetaAgents --> SR["Security Review<br/>10.8KB 安全审查"]
+    MetaAgents --> CR["Code Reviewer<br/>862B 代码审查"]
+
+    UtilityAgents --> SL["statusline-setup<br/>3.2KB 配置管理"]
+    UtilityAgents --> BA["Bash Analyzer<br/>2.7KB 输出分析"]
+    UtilityAgents --> Others["6 个其他 Agents"]
+
+    GP --> Tools["工具系统 400+"]
+    Explore --> Tools
+    AA --> Tools
+    SR --> Tools
+
+    Tools --> API["Anthropic API<br/>Claude Sonnet 4.5"]
+
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef darkRedText fill:#fff
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef lightPinkText fill:#1d1d1f
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef darkPurpleText fill:#fff
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef tealText fill:#fff
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    classDef lightGreenText fill:#1d1d1f
+
+    class CLI darkRed
+    class GP darkPurple
+    class AA teal
+    class SR lightPink
+    class CR lightGreen
+    class SL darkRed
+    class BA darkPurple
+    class API teal`} client:load />
+
+---
+
+## 🌟 重大发现：16 个 System Prompts
+
+### Prompts 分类体系
+
+<ScrollReveal client:load>
+
+#### 🎯 核心 Agents (3个)
+
+| Agent               | 大小   | 核心功能             | 工具权限         |
+| ------------------- | ------ | -------------------- | ---------------- |
+| **general-purpose** | 1.4 KB | 通用任务处理，最常用 | 全部工具         |
+| **Explore**         | 931 B  | 快速代码库搜索       | Read, Glob, Grep |
+| **Plan**            | 未提取 | 任务规划和分解       | 只读工具         |
+
+</ScrollReveal>
+
+<ScrollReveal client:load>
+
+#### 🤖 元 Agents (3个) - 最强大
+
+| Agent               | 大小    | 核心功能        | 特别之处                     |
+| ------------------- | ------- | --------------- | ---------------------------- |
+| **Agent Architect** | 5.0 KB  | 创建其他 Agents | ⭐ 唯一能创建 Agent 的 Agent |
+| **Security Review** | 10.8 KB | 三阶段安全审查  | ⭐ 最大的 Prompt，最复杂     |
+| **Code Reviewer**   | 862 B   | PR 代码审查     | 集成 GitHub API              |
+
+</ScrollReveal>
+
+<ScrollReveal client:load>
+
+#### 🛠️ 实用 Agents (10个)
+
+包括：
+- **statusline-setup** (3.2KB) - Shell 状态栏配置
+- **Bash Output Analyzer** (2.7KB) - 智能输出总结
+- **Git Comment Fetcher** (1.3KB) - GitHub PR 评论
+- **Git History Analyzer** (451B) - 分析核心文件
+- **Title Generator** (674B) - 生成会话标题
+- **Educational Mode** (490B) - 教育性代码助手
+- 以及其他 4 个专用 Agents...
+
+</ScrollReveal>
+
+---
+
+## 🔧 工具系统架构
+
+<Mermaid chart={`graph TB
+    subgraph Tools["400+ 工具分类"]
+        FileOps["文件操作<br/>Read Edit Write"]
+        Search["搜索工具<br/>Glob Grep"]
+        Exec["执行工具<br/>Bash Python"]
+        Git["版本控制<br/>Git 命令"]
+        Web["网络工具<br/>WebFetch Search"]
+        AI["AI 增强<br/>Task Skill"]
+    end
+
+    subgraph Agents["Agent 层"]
+        GP["general-purpose"]
+        Explore["Explore"]
+        AA["Agent Architect"]
+    end
+
+    Agents --> Tools
+    Tools --> Results["执行结果"]
+    Results --> Response["返回用户"]
+
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef darkRedText fill:#fff
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef lightPinkText fill:#1d1d1f
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef darkPurpleText fill:#fff
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef tealText fill:#fff
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    classDef lightGreenText fill:#1d1d1f
+
+    class AI darkRed
+    class GP darkPurple
+    class AA teal`} client:load />
+
+---
+
+## 💡 核心发现
+
+### 1. Agent Architect - 元编程的艺术
+
+这是 Claude Code 最强大的 Agent，能够**创建其他 Agents**！
+
+<Mermaid chart={`sequenceDiagram
+    participant User as 用户
+    participant CC as Claude Code
+    participant AA as Agent Architect
+    participant NewAgent as 新 Agent
+
+    User->>CC: 我需要一个专门审查 Rust 的 Agent
+    CC->>AA: 调用 Agent Architect
+    AA->>AA: 分析需求，设计 Prompt
+    AA->>NewAgent: 创建 Rust Reviewer Agent
+    NewAgent->>CC: 返回新 Agent
+    CC->>User: Rust Reviewer 已就绪！
+
+    User->>NewAgent: 审查我的 Rust 代码
+    NewAgent->>User: 提供专业的 Rust 审查建议
+`} client:load />
+
+**特点**：
+- 📝 5KB 的复杂 Prompt
+- 🎨 可定制 Agent 的能力和工具权限
+- 🔒 内置安全检查
+- 🚀 动态扩展 Claude Code 能力
+
+### 2. Security Review - 三阶段审查框架
+
+<Mermaid chart={`graph LR
+    Code["代码输入"] --> P1["阶段1<br/>静态分析"]
+    P1 --> P2["阶段2<br/>运行时检查"]
+    P2 --> P3["阶段3<br/>安全建议"]
+
+    P1 --> R1["SQL 注入<br/>XSS 漏洞<br/>路径遍历"]
+    P2 --> R2["权限检查<br/>资源限制<br/>沙箱验证"]
+    P3 --> R3["修复方案<br/>最佳实践<br/>加固建议"]
+
+    R1 --> Report["安全报告"]
+    R2 --> Report
+    R3 --> Report
+
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef darkRedText fill:#fff
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef lightPinkText fill:#1d1d1f
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef darkPurpleText fill:#fff
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef tealText fill:#fff
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    classDef lightGreenText fill:#1d1d1f
+
+    class P1 darkRed
+    class P2 darkPurple
+    class P3 teal
+    class R1 lightPink
+    class R2 lightGreen
+    class R3 darkRed`} client:load />
+
+### 3. Subagents 并行系统
+
+Claude Code 2.0 的重要新特性：
+
+<Mermaid chart={`graph TB
+    Main["主 Agent"] --> Task1["子任务1<br/>前端开发"]
+    Main --> Task2["子任务2<br/>后端 API"]
+    Main --> Task3["子任务3<br/>数据库设计"]
+
+    Task1 --> SA1["Subagent 1"]
+    Task2 --> SA2["Subagent 2"]
+    Task3 --> SA3["Subagent 3"]
+
+    SA1 --> Result["并行执行"]
+    SA2 --> Result
+    SA3 --> Result
+
+    Result --> Merge["结果合并"]
+    Merge --> Done["任务完成"]
+
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef darkRedText fill:#fff
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef lightPinkText fill:#1d1d1f
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef darkPurpleText fill:#fff
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef tealText fill:#fff
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    classDef lightGreenText fill:#1d1d1f
+
+    class SA1 darkRed
+    class SA2 darkPurple
+    class SA3 teal`} client:load />
+
+**优势**：
+- ⚡ 多任务并行，速度提升
+- 🎯 专注分工，质量提升
+- 🔄 自动协调，无需人工
+
+---
+
+## 🚀 实战应用
+
+### 在课程中的应用
+
+<div style={{ background: 'linear-gradient(135deg, #0071e3 0%, #bf5af2 100%)', borderRadius: '16px', padding: '2rem', color: 'white', margin: '2rem 0' }}>
+
+#### 第 3 周：深入 Claude Code
+
+通过本文档，你将学习到：
+
+- ✅ **Agent 架构**：理解16个 System Prompts 的设计
+- ✅ **工具系统**：掌握400+工具的使用
+- ✅ **Subagents**：学会并行任务处理
+- ✅ **最佳实践**：从源码中学习官方设计思路
+
+<div style={{ marginTop: '1.5rem' }}>
+  <a href="/curriculum/week-3" style={{ display: 'inline-block', background: 'white', color: '#0071e3', padding: '0.75rem 1.5rem', borderRadius: '999px', fontWeight: 600, textDecoration: 'none' }}>
+    前往第 3 周课程 →
+  </a>
+</div>
+
+</div>
+
+---
+
+## 📚 相关资源
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', margin: '2rem 0' }}>
+  <a href="/tools/claude-code" style={{ display: 'block', padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e5e5e5', textDecoration: 'none', color: 'inherit', transition: 'all 0.2s' }} className="hover:shadow-lg hover:border-accent">
+    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔧</div>
+    <div style={{ fontWeight: 'bold', color: '#0071e3', marginBottom: '0.5rem' }}>Claude Code 工具页</div>
+    <div style={{ fontSize: '0.9rem', color: '#86868b' }}>查看功能介绍和使用指南</div>
+  </a>
+
+  <a href="/materials/claude-code-setup" style={{ display: 'block', padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e5e5e5', textDecoration: 'none', color: 'inherit', transition: 'all 0.2s' }} className="hover:shadow-lg hover:border-accent">
+    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚙️</div>
+    <div style={{ fontWeight: 'bold', color: '#0071e3', marginBottom: '0.5rem' }}>安装配置指南</div>
+    <div style={{ fontSize: '0.9rem', color: '#86868b' }}>快速上手 Claude Code</div>
+  </a>
+
+  <a href="/curriculum/week-3" style={{ display: 'block', padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e5e5e5', textDecoration: 'none', color: 'inherit', transition: 'all 0.2s' }} className="hover:shadow-lg hover:border-accent">
+    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📖</div>
+    <div style={{ fontWeight: 'bold', color: '#0071e3', marginBottom: '0.5rem' }}>第 3 周课程</div>
+    <div style={{ fontSize: '0.9rem', color: '#86868b' }}>深入学习 Claude Code</div>
+  </a>
+</div>
+
+---
+
+## 🏗️ 详细架构图
+
+### Agent 层次结构
+
+<Mermaid chart={`graph TB
+    subgraph Main["主 Prompt 层"]
+        MP["Main System Prompt<br/>3.7KB"]
+    end
+
+    subgraph Core["核心 Agent 层"]
+        GP["general-purpose<br/>1.4KB<br/>全能型"]
+        Explore["Explore<br/>931B<br/>搜索专家"]
+        Plan["Plan<br/>规划专家"]
+    end
+
+    subgraph Meta["元 Agent 层"]
+        AA["Agent Architect<br/>5.0KB<br/>Agent 创建者"]
+        SR["Security Review<br/>10.8KB<br/>安全审查"]
+        CR["Code Reviewer<br/>862B<br/>代码审查"]
+    end
+
+    subgraph Util["实用 Agent 层"]
+        SL["statusline-setup<br/>3.2KB"]
+        BA["Bash Analyzer<br/>2.7KB"]
+        GC["Git Comment<br/>1.3KB"]
+        Others["7 个其他 Agents"]
+    end
+
+    MP --> Core
+    MP --> Meta
+    MP --> Util
+
+    Core --> Tools["400+ 工具"]
+    Meta --> Tools
+    Util --> Tools
+
+    Tools --> API["Claude Sonnet 4.5<br/>1M Context"]
+
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef darkRedText fill:#fff
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef lightPinkText fill:#1d1d1f
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef darkPurpleText fill:#fff
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef tealText fill:#fff
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    classDef lightGreenText fill:#1d1d1f
+
+    class MP darkRed
+    class GP darkPurple
+    class AA teal
+    class SR lightPink
+    class CR lightGreen
+    class SL darkRed
+    class BA darkPurple
+    class GC teal
+    class API lightPink`} client:load />
+
+---
+
+## 🔥 Claude Code 2.0 新特性
+
+### 检查点与回滚系统
+
+<Mermaid chart={`sequenceDiagram
+    participant User as 用户
+    participant CC as Claude Code
+    participant CP as 检查点系统
+    participant FS as 文件系统
+
+    User->>CC: 开始编辑任务
+    CC->>CP: 自动创建检查点
+    CP->>FS: 保存当前状态
+
+    CC->>FS: 修改文件 A
+    CC->>FS: 修改文件 B
+
+    User->>User: 发现问题！
+    User->>CC: Esc Esc (或 /rewind)
+    CC->>CP: 请求回滚
+    CP->>FS: 恢复之前状态
+    FS->>User: ✅ 代码已恢复
+
+    Note over User,FS: 可选择恢复：代码、对话、或两者
+`} client:load />
+
+**特点**：
+- 💾 自动保存每次更改前的状态
+- ⏮️ Esc 两次或 `/rewind` 命令即可回退
+- 🎯 可单独恢复代码或对话
+- 🔒 安全的撤销机制
+
+### Hooks 自动化
+
+<Mermaid chart={`graph LR
+    Code["代码修改"] --> Hook["触发 Hook"]
+    Hook --> Test["运行测试"]
+    Test --> Pass{通过?}
+    Pass -->|是| Commit["自动提交"]
+    Pass -->|否| Notify["通知用户"]
+
+    style Hook fill:#b3272c,color:#fff
+    style Test fill:#772d8b,color:#fff
+    style Commit fill:#77a0a9,color:#fff
+    style Notify fill:#f5cbc5,color:#1d1d1f
+
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef darkRedText fill:#fff
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef lightPinkText fill:#1d1d1f
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef darkPurpleText fill:#fff
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef tealText fill:#fff
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    classDef lightGreenText fill:#1d1d1f`} client:load />
+
+**应用场景**：
+- 🧪 代码更改后自动运行测试
+- 📝 自动格式化代码
+- 🔍 自动执行 Lint 检查
+- 📦 自动更新依赖
+
+---
+
+## 💻 VS Code 扩展架构
+
+<Mermaid chart={`graph TB
+    VSCode["VS Code"] --> Ext["Claude Code Extension"]
+
+    Ext --> Sidebar["侧边栏面板"]
+    Ext --> Inline["内联差异"]
+    Ext --> StatusBar["状态栏"]
+
+    Sidebar --> Changes["实时显示更改"]
+    Sidebar --> Files["多文件视图"]
+    Sidebar --> History["历史记录"]
+
+    Inline --> Diff["差异对比"]
+    Inline --> Accept["接受/拒绝"]
+
+    StatusBar --> Progress["进度显示"]
+    StatusBar --> Status["Agent 状态"]
+
+    Changes --> Backend["Claude Code 后端"]
+    Diff --> Backend
+    Progress --> Backend
+
+    Backend --> API["Sonnet 4.5 API"]
+
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef darkRedText fill:#fff
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef lightPinkText fill:#1d1d1f
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef darkPurpleText fill:#fff
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef tealText fill:#fff
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    classDef lightGreenText fill:#1d1d1f
+
+    class API darkRed`} client:load />
+
+---
+
+## 🎓 学习建议
+
+### 循序渐进
+
+1. **Week 1-2**: 使用 Claude Code，熟悉基本功能
+2. **Week 3**: 深入理解架构（本文档）
+3. **Week 6**: 学习 Agent 设计模式
+4. **Week 7**: 掌握完整工作流
+
+### 延伸阅读
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '2rem 0' }}>
+  <a href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer" style={{ padding: '1rem', background: '#f5f5f7', borderRadius: '8px', textDecoration: 'none', color: 'inherit' }}>
+    <strong>官方文档</strong>
+    <div style={{ fontSize: '0.85rem', color: '#86868b', marginTop: '0.25rem' }}>claude.com/claude-code</div>
+  </a>
+
+  <a href="/materials/ai-coding-tools-comparison" style={{ padding: '1rem', background: '#f5f5f7', borderRadius: '8px', textDecoration: 'none', color: 'inherit' }}>
+    <strong>工具对比</strong>
+    <div style={{ fontSize: '0.85rem', color: '#86868b', marginTop: '0.25rem' }}>与其他工具的对比</div>
+  </a>
+</div>
+
+---
+
+*最后更新: 2025年11月9日 | 数据来源: Acorn AST 分析*

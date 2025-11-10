@@ -1,0 +1,369 @@
+---
+layout: ../../layouts/MaterialLayout.astro
+title: Claude Code 2.0 安装配置指南
+description: Subscription vs AWS Bedrock 完整对比，快速上手最佳实践
+category: 工具深度解析
+---
+
+import ComparisonCard from '../../components/materials/ComparisonCard';
+import MetricCard from '../../components/materials/MetricCard';
+import Mermaid from '../../components/materials/Mermaid';
+
+# Claude Code 2.0 安装配置指南
+
+**Subscription 订阅 vs AWS Bedrock 部署** - 2025年完整对比与最佳实践
+
+> **最后更新**: 2025年11月 | **版本**: Claude Code 2.0 | **数据来源**: Anthropic官方文档
+
+---
+
+## 快速对比
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', margin: '3rem 0' }}>
+  <ComparisonCard
+    provider="Subscription 订阅"
+    logo="🔐"
+    color="#0071e3"
+    tagline="简单快速，开箱即用"
+    metrics={{
+      '安装时间': '< 5 分钟',
+      '起步价': '$20/月',
+      '认证方式': 'OAuth 2.0'
+    }}
+    features={[
+      '一键安装，浏览器认证',
+      'Pro $20/月 (45次请求/5小时)',
+      'Max 5x $100/月 (225次请求/5小时)',
+      'Max 20x $200/月 (200-800次请求/5小时)',
+      'Web 和移动端支持',
+      '与 claude.ai 共享使用限制',
+      '固定月费，成本可预测',
+      '无需 AWS 账号或基础设施',
+      '适合个人开发者和小团队'
+    ]}
+    highlight={true}
+    client:load
+  />
+
+  <ComparisonCard
+    provider="AWS Bedrock"
+    logo="☁️"
+    color="#ff9500"
+    tagline="企业级，按量付费"
+    metrics={{
+      '安装时间': '30-60 分钟',
+      '起步价': '按 Token 计费',
+      '认证方式': 'AWS IAM / SSO'
+    }}
+    features={[
+      'Prompt Caching (节省90%成本)',
+      'Sonnet 4.5: $3/$15 per M tokens',
+      'Haiku 4.5: $1/$5 per M tokens',
+      'Bedrock API Keys (2025年7月)',
+      '企业级 OIDC 认证 (Okta/Azure AD)',
+      'AWS 基础设施内部署',
+      'CloudTrail 审计日志',
+      '适合企业和高用量场景'
+    ]}
+    highlight={false}
+    client:load
+  />
+</div>
+
+---
+
+## 🚀 Subscription 订阅安装（推荐入门）
+
+### 安装流程图
+
+<Mermaid chart={`flowchart LR
+    Start(["开始安装"]) --> Check{"操作系统?"}
+
+    Check -->|macOS/Linux/WSL| Unix["运行安装命令 curl"]
+    Check -->|Windows| Win["运行 PowerShell 命令"]
+
+    Unix --> Install["curl -fsSL<br/>claude.ai/install.sh"]
+    Win --> InstallWin["irm claude.ai/install.ps1"]
+
+    Install --> Launch["启动: claude"]
+    InstallWin --> Launch
+
+    Launch --> Auth["浏览器 OAuth 认证"]
+    Auth --> Billing["确认计费账号"]
+    Billing --> Ready(["立即可用 < 5分钟"])
+
+    style Start fill:#b3272c,color:#fff
+    style Ready fill:#772d8b,color:#fff
+    style Auth fill:#77a0a9,color:#fff
+`} client:load />
+
+### 安装命令
+
+```bash
+# macOS / Linux / WSL
+curl -fsSL https://claude.ai/install.sh | bash
+
+# Windows PowerShell
+irm https://claude.ai/install.ps1 | iex
+
+# 启动 Claude Code
+claude
+```
+
+### 系统要求
+
+- ✅ macOS 10.15+
+- ✅ Ubuntu 20.04+ / Debian 10+
+- ✅ Windows 10+ (WSL 1, WSL 2, 或 Git for Windows)
+- ✅ 无需 Node.js (原生安装器)
+
+### 订阅计划对比
+
+export const subscriptionPlans = [
+  {
+    provider: 'Pro',
+    value: '$20',
+    unit: '/月',
+    color: '#0071e3',
+    icon: '⚡',
+    note: '45次/5小时'
+  },
+  {
+    provider: 'Max 5x',
+    value: '$100',
+    unit: '/月',
+    color: '#bf5af2',
+    icon: '🚀',
+    note: '225次/5小时'
+  },
+  {
+    provider: 'Max 20x',
+    value: '$200',
+    unit: '/月',
+    color: '#ff2d55',
+    icon: '💎',
+    note: '200-800次/5小时'
+  }
+]
+
+<MetricCard title="订阅定价" items={subscriptionPlans} type="badge" client:load />
+
+---
+
+## ☁️ AWS Bedrock 企业部署
+
+### 架构流程
+
+<Mermaid chart={`graph TB
+    Setup["开始配置"] --> AWS["创建 AWS 账号"]
+    AWS --> Bedrock["启用 Bedrock 服务"]
+    Bedrock --> Model["请求模型访问"]
+
+    Model --> Wait["等待审批<br/>5分钟-24小时"]
+    Wait --> Approved{审批通过?}
+
+    Approved -->|是| IAM["配置 IAM<br/>创建访问密钥"]
+    Approved -->|否| Retry["重新申请"]
+
+    IAM --> ConfigFile["配置 ~/.aws/credentials"]
+    ConfigFile --> Install["安装 Claude Code"]
+    Install --> ConfigCC["配置 Claude Code"]
+    ConfigCC --> Ready(["企业级部署完成"])
+
+    classDef darkRed fill:#b3272c,stroke:#b3272c,stroke-width:3px
+    classDef lightPink fill:#f5cbc5,stroke:#b3272c,stroke-width:2px
+    classDef darkPurple fill:#772d8b,stroke:#772d8b,stroke-width:3px
+    classDef teal fill:#77a0a9,stroke:#77a0a9,stroke-width:3px
+    classDef lightGreen fill:#d3f9b5,stroke:#772d8b,stroke-width:2px
+    class AWS darkRed
+    class IAM darkPurple`} client:load />
+
+### Bedrock 定价（2025年）
+
+export const bedrockPricing = [
+  {
+    provider: 'Sonnet 4.5',
+    value: '$3 / $15',
+    unit: ' per M',
+    color: '#0071e3',
+    icon: '🧠',
+    note: '输入/输出 tokens'
+  },
+  {
+    provider: 'Haiku 4.5',
+    value: '$1 / $5',
+    unit: ' per M',
+    color: '#34c759',
+    icon: '⚡',
+    note: '输入/输出 tokens'
+  },
+  {
+    provider: 'Prompt Caching',
+    value: '90%',
+    unit: ' 节省',
+    color: '#ff9500',
+    icon: '💰',
+    note: '重复上下文'
+  }
+]
+
+<MetricCard title="Bedrock 定价" items={bedrockPricing} type="number" client:load />
+
+### 配置步骤
+
+#### 1. 配置 AWS Credentials
+
+```bash
+# 配置文件: ~/.aws/credentials
+[default]
+aws_access_key_id = YOUR_ACCESS_KEY
+aws_secret_access_key = YOUR_SECRET_KEY
+
+# 配置文件: ~/.aws/config
+[default]
+region = us-east-1
+```
+
+#### 2. 安装和配置 Claude Code
+
+```bash
+# 安装
+curl -fsSL https://claude.ai/install.sh | bash
+
+# 配置 Bedrock
+claude config set provider bedrock
+claude config set bedrock.profile default
+claude config set bedrock.region us-east-1
+```
+
+#### 3. 验证配置
+
+```bash
+# 测试连接
+claude --version
+
+# 开始使用
+claude
+```
+
+---
+
+## 🎯 如何选择？
+
+### 选择 Subscription 如果：
+
+- ✅ 你是个人开发者或小团队
+- ✅ 希望快速开始，不想配置 AWS
+- ✅ 月度使用量在计划范围内
+- ✅ 想要 Web 和移动端访问
+- ✅ 需要可预测的成本
+
+### 选择 AWS Bedrock 如果：
+
+- ✅ 企业用户，需要更高安全性
+- ✅ 已有 AWS 基础设施
+- ✅ 高并发/大规模使用
+- ✅ 需要 Prompt Caching 节省成本
+- ✅ 需要审计日志和合规性
+
+---
+
+## 💡 最佳实践
+
+### 新手入门路线
+
+<Mermaid chart={`graph LR
+    Week1["第1周<br/>Subscription Pro"] --> Try["体验核心功能"]
+    Try --> Evaluate{"使用量评估"}
+
+    Evaluate -->|低频使用| StayPro["继续 Pro<br/>$20/月"]
+    Evaluate -->|高频使用| Upgrade["升级 Max<br/>$100-200/月"]
+    Evaluate -->|企业需求| Bedrock["迁移 Bedrock<br/>按量付费"]
+
+    style Week1 fill:#77a0a9,color:#fff
+    style StayPro fill:#f5cbc5,color:#1d1d1f
+    style Upgrade fill:#d3f9b5,color:#1d1d1f
+    style Bedrock fill:#77a0a9,color:#fff
+`} client:load />
+
+### 成本优化技巧
+
+1. **使用 Prompt Caching** (Bedrock)
+   - 重复上下文节省 90% 成本
+   - 适合大型代码库分析
+
+2. **选择合适的模型**
+   - Sonnet 4.5: 复杂任务、高质量
+   - Haiku 4.5: 简单任务、高速度
+
+3. **监控使用量**
+   - 设置 CloudWatch 警报
+   - 定期检查使用统计
+
+---
+
+## 🔧 常见问题
+
+### Q: Subscription 和 Bedrock 能否切换？
+
+A: 可以！Claude Code 支持多个 Profile 配置：
+
+```bash
+# 配置 Subscription
+claude config set provider subscription --profile sub
+
+# 配置 Bedrock
+claude config set provider bedrock --profile bedrock
+
+# 切换使用
+claude --profile sub
+claude --profile bedrock
+```
+
+### Q: Bedrock 支持哪些地区？
+
+A: 目前支持：
+- 🇺🇸 us-east-1 (N. Virginia) - **推荐**
+- 🇺🇸 us-west-2 (Oregon)
+- 🇪🇺 eu-central-1 (Frankfurt)
+- 🇦🇵 ap-southeast-1 (Singapore)
+
+### Q: 如何查看使用量？
+
+```bash
+# Subscription
+# 访问 claude.ai 查看使用统计
+
+# Bedrock
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/Bedrock \
+  --metric-name Invocations
+```
+
+---
+
+## 📚 下一步
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '2rem 0' }}>
+  <a href="/materials/claude-code-architecture" style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', textDecoration: 'none', color: 'inherit' }}>
+    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏗️</div>
+    <div style={{ fontWeight: 'bold', color: '#0071e3', marginBottom: '0.5rem' }}>架构深度分析</div>
+    <div style={{ fontSize: '0.9rem', color: '#86868b' }}>理解 Claude Code 内部原理</div>
+  </a>
+
+  <a href="/curriculum/week-3" style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', textDecoration: 'none', color: 'inherit' }}>
+    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📖</div>
+    <div style={{ fontWeight: 'bold', color: '#0071e3', marginBottom: '0.5rem' }}>第 3 周课程</div>
+    <div style={{ fontSize: '0.9rem', color: '#86868b' }}>深入学习 Claude Code</div>
+  </a>
+
+  <a href="/tools/claude-code" style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', textDecoration: 'none', color: 'inherit' }}>
+    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔧</div>
+    <div style={{ fontWeight: 'bold', color: '#0071e3', marginBottom: '0.5rem' }}>Claude Code 工具页</div>
+    <div style={{ fontSize: '0.9rem', color: '#86868b' }}>查看功能和使用场景</div>
+  </a>
+</div>
+
+---
+
+*最后更新: 2025年11月 | 数据来源: Anthropic 官方文档、AWS Bedrock 文档*

@@ -8,12 +8,12 @@ export default function Footer() {
       { label: '课程大纲', href: '/curriculum' },
       { label: '工具生态', href: '/tools' },
       { label: '实战项目', href: '/projects' },
+      { label: '学习资料', href: '/materials' },
     ],
-    工具: [
-      { label: 'Cursor', href: '/tools/cursor' },
-      { label: 'Claude Code', href: '/tools/claude-code' },
-      { label: 'NotebookLM', href: '/tools/notebooklm' },
-      { label: 'MCP', href: '/tools/mcp' },
+    资料: [
+      { label: 'Claude Code 架构', href: '/materials/claude-code-architecture' },
+      { label: '工具对比', href: '/materials/ai-coding-tools-comparison' },
+      { label: 'NotebookLM', href: '/materials/notebooklm-guide' },
     ],
     关于: [
       { label: '课程价值', href: '/about#value' },

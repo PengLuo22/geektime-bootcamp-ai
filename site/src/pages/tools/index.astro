@@ -1,6 +1,6 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
-import Hero from '../../components/ui/Hero';
+import PageHeader from '../../components/ui/PageHeader';
 import ToolShowcase from '../../components/tools/ToolShowcase';
 import ScrollReveal from '../../components/ui/ScrollReveal';
 import { tools } from '../../data/tools';
@@ -15,12 +15,12 @@ const knowledge = tools.filter((t) => t.category === 'knowledge');
   title="工具生态 - 陈天 AI 训练营"
   description="掌握最前沿的 AI 辅助编程工具"
 >
-  <Hero title="工具生态" subtitle="构建你的 AI 辅助开发工具链" client:load>
+  <PageHeader title="工具生态" subtitle="构建你的 AI 辅助开发工具链" client:load>
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <a href="#editors" class="btn-primary"> 探索工具 </a>
       <a href="/curriculum" class="btn-secondary"> 查看课程 </a>
     </div>
-  </Hero>
+  </PageHeader>
 
   <section id="editors" class="py-24 bg-bg-primary">
     <div class="container-custom">

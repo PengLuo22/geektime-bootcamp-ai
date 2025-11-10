@@ -1,0 +1,37 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Navigation from '../components/layout/Navigation';
+import Footer from '../components/layout/Footer';
+import '../styles/materials.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  category?: string;
+}
+
+const { title, description, category } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <Navigation client:load />
+  <main class="pt-16 min-h-screen bg-bg-primary">
+    {category && (
+      <div class="bg-bg-secondary border-b border-gray-200">
+        <div class="container-custom py-4">
+          <div class="flex items-center gap-3 text-sm">
+            <a href="/materials" class="text-accent hover:underline">学习资料</a>
+            <span class="text-text-secondary">/</span>
+            <span class="text-text-secondary">{category}</span>
+          </div>
+        </div>
+      </div>
+    )}
+    <div class="container-custom py-12">
+      <div class="max-w-5xl mx-auto prose prose-lg prose-slate mx-auto mdx-content">
+        <slot />
+      </div>
+    </div>
+  </main>
+  <Footer client:load />
+</BaseLayout>

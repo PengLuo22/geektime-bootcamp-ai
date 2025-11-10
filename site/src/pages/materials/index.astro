@@ -1,0 +1,158 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import PageHeader from '../../components/ui/PageHeader';
+import ScrollReveal from '../../components/ui/ScrollReveal';
+import { BookOpen, Code, Wrench, Lightbulb, FileText } from 'lucide-react';
+
+const materials = [
+  {
+    category: '工具深度解析',
+    icon: Wrench,
+    description: '深入了解 AI 编程工具的架构和使用',
+    items: [
+      {
+        title: 'Claude Code 2.0 深度架构分析',
+        description: '完整逆向工程分析，16个System Prompts，50+架构图',
+        href: '/materials/claude-code-architecture',
+        tags: ['Claude Code', '架构', '高级'],
+      },
+      {
+        title: 'Claude Code 安装配置指南',
+        description: '从零开始配置 Claude Code，最佳实践和技巧',
+        href: '/materials/claude-code-setup',
+        tags: ['Claude Code', '入门', '配置'],
+      },
+      {
+        title: 'NotebookLM 完全指南',
+        description: '1M上下文窗口，闪卡、测验、思维导图全功能',
+        href: '/materials/notebooklm-guide',
+        tags: ['NotebookLM', '知识管理', '学习'],
+      },
+    ],
+  },
+  {
+    category: '工具对比分析',
+    icon: Code,
+    description: '全面对比各类 AI 工具，帮你做出最佳选择',
+    items: [
+      {
+        title: 'AI 编码工具全景对比',
+        description: 'Cursor vs Claude Code vs Copilot 深度对比',
+        href: '/materials/ai-coding-tools-comparison',
+        tags: ['对比', 'Cursor', 'Claude Code'],
+      },
+      {
+        title: 'AI 模型能力对比',
+        description: 'Claude vs GPT vs Gemini 规格、性能、价格全方位对比',
+        href: '/materials/ai-models-comparison',
+        tags: ['对比', 'Claude', 'GPT', 'Gemini'],
+      },
+    ],
+  },
+  {
+    category: '概念与理论',
+    icon: Lightbulb,
+    description: 'AI 辅助编程的核心概念和理论基础',
+    items: [],
+  },
+  {
+    category: '实战案例',
+    icon: FileText,
+    description: '真实项目的开发过程和经验分享',
+    items: [],
+  },
+];
+---
+
+<PageLayout
+  title="学习资料 - 陈天 AI 训练营"
+  description="深度技术文章、工具分析、实战案例"
+>
+  <PageHeader
+    title="学习资料"
+    subtitle="深入理解 AI 编程工具与最佳实践"
+    client:load
+  >
+    <a href="#materials" class="btn-primary">浏览资料</a>
+    <a href="/curriculum" class="btn-secondary">返回课程</a>
+  </PageHeader>
+
+  <section id="materials" class="py-24 bg-bg-primary">
+    <div class="container-custom">
+      <ScrollReveal client:load>
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">
+            精选学习资料
+          </h2>
+          <p class="text-text-secondary max-w-2xl mx-auto">
+            深度技术文章、架构分析、工具对比，助你全面掌握 AI 辅助编程
+          </p>
+        </div>
+      </ScrollReveal>
+
+      <div class="space-y-16">
+        {
+          materials.map((category, idx) => (
+            <ScrollReveal delay={idx * 0.1} client:load>
+              <div>
+                <div class="flex items-center gap-3 mb-6">
+                  <category.icon size={32} className="text-accent" />
+                  <div>
+                    <h3 class="text-2xl font-bold text-primary">
+                      {category.category}
+                    </h3>
+                    <p class="text-text-secondary">{category.description}</p>
+                  </div>
+                </div>
+
+                {category.items.length > 0 ? (
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {category.items.map((item) => (
+                      <a
+                        href={item.href}
+                        class="block p-6 bg-white rounded-xl hover:shadow-lg transition-all group"
+                      >
+                        <h4 class="text-xl font-bold text-primary mb-2 group-hover:text-accent transition-colors">
+                          {item.title}
+                        </h4>
+                        <p class="text-text-secondary mb-4">{item.description}</p>
+                        <div class="flex flex-wrap gap-2">
+                          {item.tags.map((tag) => (
+                            <span class="px-3 py-1 bg-bg-secondary text-xs font-medium rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <div class="p-8 bg-bg-secondary rounded-xl text-center text-text-secondary">
+                    即将推出更多精彩内容...
+                  </div>
+                )}
+              </div>
+            </ScrollReveal>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 bg-bg-secondary">
+    <div class="container-custom text-center">
+      <ScrollReveal client:load>
+        <h2 class="text-3xl md:text-4xl font-bold text-primary mb-8">
+          学以致用
+        </h2>
+        <p class="text-xl text-text-secondary mb-8 max-w-2xl mx-auto">
+          理论结合实践，在课程和项目中应用所学知识
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/curriculum" class="btn-primary"> 开始学习课程 </a>
+          <a href="/projects" class="btn-secondary"> 查看实战项目 </a>
+        </div>
+      </ScrollReveal>
+    </div>
+  </section>
+</PageLayout>

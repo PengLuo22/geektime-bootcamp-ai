@@ -1,6 +1,6 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
-import Hero from '../components/ui/Hero';
+import PageHeader from '../components/ui/PageHeader';
 import FeatureCard from '../components/ui/FeatureCard';
 import ScrollReveal from '../components/ui/ScrollReveal';
 import ExpandableSection from '../components/ui/ExpandableSection';
@@ -10,12 +10,12 @@ import ExpandableSection from '../components/ui/ExpandableSection';
   title="关于课程 - 陈天 AI 训练营"
   description="深入了解课程价值、适合人群和学习收获"
 >
-  <Hero title="关于课程" subtitle="AI 辅助编程的系统化学习之旅" client:load>
+  <PageHeader title="关于课程" subtitle="AI 辅助编程的系统化学习之旅" client:load>
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <a href="/curriculum" class="btn-primary"> 查看课程大纲 </a>
       <a href="#value" class="btn-secondary"> 了解课程价值 </a>
     </div>
-  </Hero>
+  </PageHeader>
 
   <section id="value" class="py-24 bg-bg-primary">
     <div class="container-custom">

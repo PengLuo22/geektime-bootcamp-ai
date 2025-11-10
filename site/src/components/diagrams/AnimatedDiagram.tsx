@@ -7,20 +7,62 @@ interface AnimatedDiagramProps {
   className?: string;
 }
 
-// Initialize mermaid
+// Initialize mermaid with custom color palette
 mermaid.initialize({
   startOnLoad: false,
   theme: 'base',
   themeVariables: {
-    primaryColor: '#0071e3',
+    // Custom color palette
+    primaryColor: '#f5cbc5', // Light pink/beige
     primaryTextColor: '#1d1d1f',
-    primaryBorderColor: '#0071e3',
-    lineColor: '#86868b',
-    secondaryColor: '#f5f5f7',
-    tertiaryColor: '#fbfbfd',
+    primaryBorderColor: '#b3272c', // Dark red
+
+    // Secondary colors
+    secondaryColor: '#d3f9b5', // Light green
+    secondaryTextColor: '#1d1d1f',
+    secondaryBorderColor: '#772d8b', // Dark purple
+
+    // Tertiary
+    tertiaryColor: '#f5cbc5',
+    tertiaryTextColor: '#1d1d1f',
+    tertiaryBorderColor: '#77a0a9', // Muted teal
+
+    // Background
+    background: '#ffffff',
+    mainBkg: '#ffffff',
+    secondBkg: '#f5f5f7',
+    textColor: '#1d1d1f',
+
+    // Lines and connections
+    lineColor: '#772d8b', // Dark purple
+    arrowheadColor: '#772d8b',
+    defaultLinkColor: '#772d8b',
+
+    // Font
     fontSize: '16px',
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
+
+    // Node borders
+    nodeBorder: '#772d8b',
+    clusterBkg: '#f5cbc5',
+    clusterBorder: '#b3272c',
+    edgeLabelBackground: '#ffffff',
+
+    // Accent colors
+    pie1: '#b3272c',
+    pie2: '#f5cbc5',
+    pie3: '#772d8b',
+    pie4: '#77a0a9',
+    pie5: '#d3f9b5',
+    pie6: '#b3272c',
+  },
+  flowchart: {
+    htmlLabels: false, // Disable to allow color property to work
+    curve: 'basis',
+    padding: 25,
+    nodeSpacing: 80,
+    rankSpacing: 80,
+    useMaxWidth: true,
   },
 });
 

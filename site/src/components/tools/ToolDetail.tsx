@@ -112,6 +112,57 @@ export default function ToolDetail({ tool }: ToolDetailProps) {
         </div>
       </ScrollReveal>
 
+      {/* Learning Materials */}
+      {(tool.id === 'claude-code' || tool.id === 'notebooklm' || tool.id === 'cursor') && (
+        <ScrollReveal>
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <h2 className="text-3xl font-bold text-primary mb-8">深度学习资料</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {tool.id === 'claude-code' && (
+                <>
+                  <a
+                    href="/materials/claude-code-architecture"
+                    className="p-4 bg-bg-secondary hover:bg-accent hover:text-white rounded-xl transition-all group"
+                  >
+                    <div className="text-2xl mb-2">🏗️</div>
+                    <div className="font-semibold mb-1">架构深度分析</div>
+                    <div className="text-sm opacity-80">16个System Prompts完整解析</div>
+                  </a>
+                  <a
+                    href="/materials/claude-code-setup"
+                    className="p-4 bg-bg-secondary hover:bg-accent hover:text-white rounded-xl transition-all group"
+                  >
+                    <div className="text-2xl mb-2">⚙️</div>
+                    <div className="font-semibold mb-1">安装配置指南</div>
+                    <div className="text-sm opacity-80">快速上手完整教程</div>
+                  </a>
+                </>
+              )}
+              {tool.id === 'notebooklm' && (
+                <a
+                  href="/materials/notebooklm-guide"
+                  className="p-4 bg-bg-secondary hover:bg-accent hover:text-white rounded-xl transition-all group"
+                >
+                  <div className="text-2xl mb-2">📚</div>
+                  <div className="font-semibold mb-1">NotebookLM 完全指南</div>
+                  <div className="text-sm opacity-80">1M上下文，全功能解析</div>
+                </a>
+              )}
+              {(tool.id === 'cursor' || tool.id === 'claude-code') && (
+                <a
+                  href="/materials/ai-coding-tools-comparison"
+                  className="p-4 bg-bg-secondary hover:bg-accent hover:text-white rounded-xl transition-all group"
+                >
+                  <div className="text-2xl mb-2">🔧</div>
+                  <div className="font-semibold mb-1">AI工具全景对比</div>
+                  <div className="text-sm opacity-80">Cursor vs Claude Code对比</div>
+                </a>
+              )}
+            </div>
+          </div>
+        </ScrollReveal>
+      )}
+
       {/* Related Resources */}
       <ScrollReveal>
         <div className="bg-gradient-to-r from-accent to-accent-purple rounded-2xl p-8 text-white">

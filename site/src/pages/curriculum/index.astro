@@ -1,6 +1,6 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
-import Hero from '../../components/ui/Hero';
+import PageHeader from '../../components/ui/PageHeader';
 import Timeline from '../../components/course/Timeline';
 import AnimatedDiagram from '../../components/diagrams/AnimatedDiagram';
 import { getTimelineData } from '../../data/curriculum';
@@ -31,7 +31,7 @@ const learningPathDiagram = `graph TB
   title="课程大纲 - 陈天 AI 训练营"
   description="8周系统化学习，从 AI 编码入门到 Agent 开发精通"
 >
-  <Hero
+  <PageHeader
     title="8周学习路径"
     subtitle="从入门到精通，系统掌握 AI 辅助编程"
     client:load
@@ -40,7 +40,7 @@ const learningPathDiagram = `graph TB
       <a href="#timeline" class="btn-primary"> 查看课程大纲 </a>
       <a href="/projects" class="btn-secondary"> 实战项目 </a>
     </div>
-  </Hero>
+  </PageHeader>
 
   <section class="py-24 bg-bg-primary">
     <div class="container-custom">
