@@ -271,19 +271,6 @@ CREATE TABLE deals (
 
 COMMENT ON TABLE deals IS 'Sales opportunities';
 
-CREATE TABLE deal_products (
-    id SERIAL PRIMARY KEY,
-    deal_id INTEGER NOT NULL REFERENCES deals(id) ON DELETE CASCADE,
-    product_id INTEGER NOT NULL REFERENCES products(id),
-    quantity INTEGER DEFAULT 1,
-    unit_price DECIMAL(10, 2) NOT NULL,
-    discount_percent DECIMAL(5, 2) DEFAULT 0,
-    total_price DECIMAL(15, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-COMMENT ON TABLE deal_products IS 'Products associated with deals';
-
 -- ============================================================================
 -- PRODUCTS & PRICING
 -- ============================================================================
@@ -343,6 +330,19 @@ CREATE TABLE price_book_entries (
 );
 
 COMMENT ON TABLE price_book_entries IS 'Product prices in price books';
+
+CREATE TABLE deal_products (
+    id SERIAL PRIMARY KEY,
+    deal_id INTEGER NOT NULL REFERENCES deals(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id),
+    quantity INTEGER DEFAULT 1,
+    unit_price DECIMAL(10, 2) NOT NULL,
+    discount_percent DECIMAL(5, 2) DEFAULT 0,
+    total_price DECIMAL(15, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE deal_products IS 'Products associated with deals';
 
 -- ============================================================================
 -- SUBSCRIPTIONS & BILLING
@@ -1045,7 +1045,7 @@ SELECT
     s.status,
     s.current_period_start,
     s.current_period_end,
-    EXTRACT(DAY FROM (s.current_period_end - CURRENT_DATE)) AS days_until_renewal
+    (s.current_period_end - CURRENT_DATE) AS days_until_renewal
 FROM subscriptions s
 JOIN accounts a ON s.account_id = a.id
 JOIN subscription_plans sp ON s.plan_id = sp.id
@@ -1140,15 +1140,15 @@ SELECT
     p.id,
     p.organization_id,
     p.name AS product_name,
-    COUNT(DISTINCT oi.order_id) AS times_sold,
-    SUM(oi.quantity) AS total_quantity_sold,
-    SUM(oi.total_price) AS total_revenue
+    COUNT(DISTINCT dp.deal_id) AS times_sold,
+    SUM(dp.quantity) AS total_quantity_sold,
+    SUM(dp.total_price) AS total_revenue
 FROM products p
-LEFT JOIN order_items oi ON p.id = oi.product_id
+LEFT JOIN deal_products dp ON p.id = dp.product_id
 GROUP BY p.id, p.organization_id, p.name
 ORDER BY total_revenue DESC;
 
-COMMENT ON VIEW top_products IS 'Product sales performance';
+COMMENT ON VIEW top_products IS 'Product sales performance from deals';
 
 -- Campaign Performance
 CREATE VIEW campaign_performance AS
